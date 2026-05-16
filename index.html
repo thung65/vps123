@@ -1,108 +1,458 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giới thiệu - Trần Tất Khôi<title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>XEM TRUYỀN HÌNH | TIVI TRỰC TUYẾN </title>
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
+    
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            
+        :root { --primary: #ffcc00; --bg: #000; --side-width: 320px; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: sans-serif; overflow: hidden; }
+
+        /* Nút điều khiển */
+        #menu-toggle, #full-page-btn, #settings-btn {
+            position: absolute; top: 15px; z-index: 100;
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 8px 12px; cursor: pointer; border-radius: 5px; 
+            transition: 0.3s ease;
         }
-        .fa-zalo {
-    background: url('https://i.pinimg.com/736x/6b/3a/44/6b3a44206a93e2f6c3cc79065365a76e.jpg') no-repeat center center;
-    background-size: contain;
-    width: 18px; /* Điều chỉnh kích thước cho khớp với các icon khác */
-    height: 18px;
-    display: inline-block;
-    vertical-align: middle;
-}
-        .card {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
+        #menu-toggle { left: 15px; font-size: 24px; }
+        #settings-btn { left: 70px; font-size: 24px; }
+        #full-page-btn { right: 15px; font-size: 14px; font-weight: bold; }
+
+        #main-content { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+
+        /* Sidebar */
+        #sidebar {
+            position: fixed; top: 0; left: 0; width: var(--side-width); height: 100%;
+            background: #111; z-index: 2000; transform: translateX(-100%);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-right: 1px solid #333; 
+            display: flex; flex-direction: column;
         }
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #007bff;
-            margin-bottom: 1rem;
+        #sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
+
+        #overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); display: none; z-index: 1500; 
         }
-        h1 { margin: 10px 0; color: #333; }
-        .role { color: #666; font-style: italic; margin-bottom: 15px; }
-        .bio { color: #555; line-height: 1.6; margin-bottom: 25px; }
+        #overlay.show { display: block; }
+
+        /* CSS Bảng Cài Đặt */
+        #settings-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 400px; background: #1a1a1a; border-radius: 15px;
+            padding: 20px; z-index: 2100; display: none; border: 1px solid #333;
+        }
+        .settings-header { font-size: 20px; font-weight: bold; color: var(--primary); margin-bottom: 20px; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        .social-links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        /* CSS Nút Gạt (Switch) */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(26px); background-color: #000; }
+
+        /* Header Sidebar */
+        .sidebar-header {
+            display: flex; align-items: center; justify-content: center; padding: 20px 15px; 
+            border-bottom: 1px solid #222; background: #1a1a1a;
         }
-        .social-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-        .social-item:hover {
-            transform: translateY(-3px);
-            opacity: 0.9;
-        }
-        .social-item i { margin-right: 10px; font-size: 1.2rem; }
+        .sidebar-header img { width: 35px; height: 35px; margin-right: 12px; object-fit: contain; }
+
+        /* Tabs & List */
+        .tabs { display: flex; overflow-x: auto; background: #1a1a1a; padding: 10px; border-bottom: 1px solid #333; scrollbar-width: none; gap: 5px; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tabs button { background: #333; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 11px; flex-shrink: 0; }
+        .tabs button.active { background: var(--primary); color: #000; font-weight: bold; }
+        
+        #list { flex: 1; overflow-y: auto; padding: 10px; }
+        .item { display: flex; align-items: center; padding: 12px; background: #1a1a1a; margin-bottom: 8px; border-radius: 8px; cursor: pointer; border: 1px solid #222; }
+        .item.active { border-color: var(--primary); background: rgba(255,204,0,0.1); }
+        .item img { width: 45px; height: 30px; object-fit: contain; margin-right: 12px; background: #fff; border-radius: 4px; padding: 2px; }
+
+        .ui-hidden { opacity: 0 !important; pointer-events: none; }
+        .hide-cursor { cursor: none !important; }
     </style>
 </head>
-<body>
+<body onmousemove="handleUI()" onclick="handleUI()" ontouchstart="handleUI()">
 
-<div class="card">
-    <img src="https://vietanhtv.id.vn/avata.jpg" alt="Avatar" class="avatar">
-    <h1>Trịnh Việt Anh</h1>
-    <div class="role">Web Developer & Tech Enthusiast</div>
-    <p class="bio">Chào mừng bạn đã ghé thăm trang cá nhân của mình. Mình yêu thích lập trình, sáng tạo nội dung và kết nối với mọi người.</p>
+<button id="full-page-btn" onclick="toggleFullPage()">FULL SCREEN</button>
+<button id="settings-btn" onclick="toggleSettings()">⚙</button>
+<button id="menu-toggle" onclick="toggleMenu()">☰</button>
 
-    <div class="social-links">
-                    <a href="https://facebook.com/vietanhtvgroup" 
-               class="social-item" 
-               target="_blank" 
-               style="background-color: #1877F2;">
-                <i class="fab fa-facebook-f"></i>
-                FACEBOOK            </a>
-                    <a href="https://zalo.me/0395062258" 
-               class="social-item" 
-               target="_blank" 
-               style="background-color: #0068FF;">
-                <i class="fa-zalo"></i>
-                ZALO            </a>
-                    <a href="https://www.tiktok.com/@vietanhanime?_r=1&_t=ZS-94H9e7myEjo" 
-               class="social-item" 
-               target="_blank" 
-               style="background-color: #000000;">
-                <i class="fa-brands fa-tiktok"></i>
-                TIKTOK            </a>
-                    <a href="https://www.instagram.com/vietanhtvgroup?igsh=bWE4emFseDQ2aXVl" 
-               class="social-item" 
-               target="_blank" 
-               style="background-color: #E4405F;">
-                <i class="fab fa-instagram"></i>
-                INSTAGRAM            </a>
-            </div>
+<div id="overlay" onclick="closeAll()"></div>
+
+<div id="settings-modal">
+    <div class="settings-header">CÀI ĐẶT TV</div>
+    <div class="setting-row">
+        <span>Ghi nhớ kênh cuối</span>
+        <label class="switch">
+            <input type="checkbox" id="save-channel-opt">
+            <span class="slider"></span>
+        </label>
+    </div>
+    <div class="setting-row">
+        <span>Tự động phát</span>
+        <label class="switch">
+            <input type="checkbox" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+    <button onclick="toggleSettings()" style="width:100%; padding:12px; background:var(--primary); border:none; border-radius:8px; cursor:pointer; font-weight:bold; color:#000; margin-top:10px;">ĐÓNG</button>
 </div>
 
+<div id="sidebar">
+    <div class="sidebar-header">
+        <img src="https://raw.githubusercontent.com/thung65/my-iptv/refs/heads/main/TV_4089.png" onerror="this.style.display='none'">
+        <div style="font-weight: bold; color: var(--primary); font-size: 14px; letter-spacing: 1.5px;">DANH SÁCH KÊNH</div>
+    </div>
+    <div class="tabs" id="tab-box"></div>
+    <div id="list"></div>
+</div>
+
+<div id="main-content">
+    <video id="video" autoplay playsinline controls></video>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const settingsModal = document.getElementById('settings-modal');
+    let shakaPlayer, hlsPlayer, curTab = "ALL", hideTimeout, cursorTimeout
+
+    const FIXED_CHANNELS = [
+        // NHÓM VTV
+        { n: "VTV1", u: "https://live.fptplay53.net/fnxch2/vtv1hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/1.png", g: "VTV" },
+        { n: "VTV2", u: "https://live.fptplay53.net/fnxch2/vtv2hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/2.png", g: "VTV" },
+        { n: "VTV3", u: "https://live.fptplay53.net/fnxch2/vtv3hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/3.png", g: "VTV" },
+        { n: "VTV4", u: "https://live.fptplay53.net/fnxch2/vtv4hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/4.png", g: "VTV" },
+        { n: "VTV5", u: "https://live.fptplay53.net/epzch2/vtv5hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/5.png", g: "VTV" },
+        { n: "VTV7", u: "https://live.fptplay53.net/fnxhd1/vtv7hd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/9.png", g: "VTV" },
+        { n: "VTV8", u: "https://live.fptplay53.net/epzhd1/vtv8hd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/10.png", g: "VTV" },
+        { n: "VTV9", u: "https://live.fptplay53.net/epzch2/vtv9hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/11.png", g: "VTV" },
+        { n: "VTV10", u: "https://live.fptplay53.net/fnxch2/vtvcantho_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/8.png", g: "VTV" }, 
+        { n: "VTV5 TÂY NAM BỘ", u: "https://live.fptplay53.net/fnxhd1/vtv5tnb_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/6.png", g: "VTV" },
+        { n: "VTV5 TÂY NGUYÊN", u: "https://live.fptplay53.net/fnxhd1/vtv5taynguyen_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/7.png", g: "VTV" },
+        { n: "VIETNAM TODAY", u: "https://live.fptplay53.net/fnxhd1/vntoday_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/176.png", g: "VTV" },
+
+        // NHÓM THIẾT YẾU
+        { n: "ANTV HD", u: "https://live.fptplay53.net/fnxhd2/anninhtv_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/71.png", g: "THIẾT YẾU" },
+        { n: "QPVN HD", u: "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/72.png", g: "THIẾT YẾU" },
+
+        // NHÓM VTVCAB
+        { n: "ON VIE GIẢI TRÍ", u: "https://vietanhtv.id.vn/tv360/180/index.m3u8", l: "https://image4.vnmedia.xyz/logo/on-viegiaitri.jpg", g: "VTVCAB" },
+        { n: "ON PHIM VIỆT", u: "https://livevlisctcdnw.seenow.vn/livesnv2/PHIM_VIET/manifest.mpd", i: "7417db88928243fda4e03596bbd19a27", k: "eebb689de1191ae1b207d32f0d5ca9fe", l: "https://image4.vnmedia.xyz/logo/on-viegiaitri.jpg", g: "VTVCAB" },
+        { n: "ON SPORTS", u: "https://livevlisctcdnw.seenow.vn/livesnv2/THETHAO_HD/manifest.mpd", i: "bc5c30fc9f7e43e58887a2d8a7788a38", k: "55bd66990fb745fd895f1aa71393e81f", l: "https://image3.vnmedia.xyz/logo/on-sports.jpg", g: "VTVCAB" },
+        { n: "ON MOVIES", u: "https://vietanhtv.id.vn/tv360/181/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-movies.jpg", g: "VTVCAB" },
+        { n: "ON E CHANNEL", u: "https://vietanhtv.id.vn/tv360/182/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-echannel.jpg", g: "VTVCAB" },
+        { n: "ON SPORTS+", u: "https://livevlisctcdnw.seenow.vn/livesnv2/HAY_TV/manifest.mpd", i: "4e619c5b54494762b131f65fc34a885b", k: "676d9f5a28d409d7d601514baa147c9d", l: "https://i.imgur.com/Wr9Rrsk.jpeg", g: "VTVCAB" },
+        { n: "ON O2TV", u: "https://vietanhtv.id.vn/tv360/136/index.m3u8", l: "https://image4.vnmedia.xyz/logo/on-o2tv.jpg", g: "VTVCAB" },
+        { n: "ON BIBI", u: "https://vietanhtv.id.vn/tv360/178/index.m3u8", l: "https://image1.vnmedia.xyz/logo/on-bibi.jpg", g: "VTVCAB" },
+        { n: "ON INFO TV", u: "https://vietanhtv.id.vn/tv360/189/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-infotv.jpg", g: "VTVCAB" },
+        { n: "ON CINE", u: "https://vietanhtv.id.vn/tv360/176/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-cine.jpg", g: "VTVCAB" },
+        { n: "ON STYLE TV", u: "https://vietanhtv.id.vn/tv360/184/index.m3u8", l: "https://image1.vnmedia.xyz/logo/on-style.jpg", g: "VTVCAB" },
+        { n: "ON MUSIC", u: "https://freem3u.xyz/api/live/play.m3u8?vid=185", l: "https://image4.vnmedia.xyz/logo/on-music.jpg", g: "VTVCAB" },
+        { n: "ON FOOTBALL", u: "https://livevlisctcdnw.seenow.vn/mean/BONGDA_HD/manifest.mpd", i: "5184162e30134a44afa1d591ffc2e736", k: "09b20d5f9bbf41fdb8d3916c409470a8", l: "https://image1.vnmedia.xyz/logo/on-football.jpg", g: "VTVCAB" },
+        { n: "ON TRENDING TV", u: "https://vietanhtv.id.vn/tv360/186/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-trending.jpg", g: "VTVCAB" },
+        { n: "ON SPORTS NEWS", u: "https://livevlisctcdnw.seenow.vn/mean/THETHAO_TINTUC_HD/manifest.mpd", i: "cafb6e60c1504dfc858fd3dddc6fd20c", k: "92061ffeb13f47c4d8879316dbc9521d", l: "https://image2.vnmedia.xyz/logo/on-sportsnews.jpg", g: "VTVCAB" },
+        { n: "ON VIE DRAMAS", u: "https://vietanhtv.id.vn/tv360/177/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-viedramas.jpg", g: "VTVCAB" },
+        { n: "ON VFAMILY", u: "https://vietanhtv.id.vn/tv360/187/index.m3u8", l: "https://image3.vnmedia.xyz/logo/on-vfamily.jpg", g: "VTVCAB" },
+        { n: "ON KIDS", u: "https://vietanhtv.id.vn/tv360/179/index.m3u8", l: "https://image2.vnmedia.xyz/logo/on-kids.jpg", g: "VTVCAB" },
+        { n: "ON LIFE", u: "https://vietanhtv.id.vn/tv360/188/index.m3u8", l: "https://image3.vnmedia.xyz/logo/on-life.jpg", g: "VTVCAB" },
+        { n: "ON GOLF", u: "https://livevlisctcdnw.seenow.vn/mean/THETHAO_GOLF_HD/manifest.mpd", i: "5a323b53e0864492b0e04c70d591c564", k: "843584bafaf2736c4fd1b76e1eee74d8", l: "https://image4.vnmedia.xyz/logo/on-golf.jpg", g: "VTVCAB" },
+        
+         // NHÓM HTV & HTVC
+        { n: "HTV1", u: "https://live.fptplay53.net/epzhd1/htv1_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/32.png", g: "HTV" },
+        { n: "HTV2", u: "https://live.fptplay53.net/epzhd1/htv2hd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/33.png", g: "HTV" },
+        { n: "HTV3", u: "https://live.fptplay53.net/epzhd1/htv3_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/34.png", g: "HTV" },
+        { n: "HTV4", u: "https://live.fptplay53.net/epzhd1/htv4_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/35.png", g: "HTV" },
+        { n: "HTV5 B CHANNEL", u: "https://live.fptplay53.net/fnxsd1/btv9_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/85.png", g: "HTV" },
+        { n: "HTV7", u: "https://live.fptplay53.net/epzch2/htv7hd_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/36.png", g: "HTV" },
+        { n: "HTV9", u: "https://live.fptplay53.net/epzhd1/htv9hd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/37.png", g: "HTV" },
+        { n: "HTV THỂ THAO", u: "https://live.fptplay53.net/epzhd1/htvcthethao_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/38.png", g: "HTV" },
+        { n: "HTVC THUẦN VIỆT", u: "https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/39.png", g: "HTV" },
+        { n: "HTVC DU LỊCH", u: "https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/44.png", g: "HTV" },
+        { n: "HTVC GIA ĐÌNH", u: "https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/40.png", g: "HTV" },
+        { n: "HTVC PHỤ NỮ", u: "https://live.fptplay53.net/epzhd1/htvcphunu_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/41.png", g: "HTV" },
+        { n: "HTVC PHIM", u: "https://live.fptplay53.net/epzhd1/htvcmovieshd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/42.png", g: "HTV" },
+        { n: "HTVC PLUS", u: "https://live.fptplay53.net/epzhd1/htvcplus_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/45.png", g: "HTV" },
+        { n: "HTVC CA NHẠC", u: "https://live.fptplay53.net/epzhd1/htvcmusic_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/43.png", g: "HTV" },
+
+        // NHÓM ĐỊA PHƯƠNG
+        { n: "THLC HD _ TH LÀO CAI", u: "https://live.fptplay53.net/fnxsd1/laocai_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/115.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ĐTV HD _ TH ĐIỆN BIÊN", u: "https://live.fptplay53.net/fnxsd1/dienbien_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/92.png", g: "ĐỊA PHƯƠNG" },
+        { n: "LTV HD _ TH LAI CHÂU", u: "https://live.fptplay53.net/fnxsd1/laichau_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/110.png", g: "ĐỊA PHƯƠNG" },
+        { n: "CRTV HD _ TH CAO BẰNG", u: "https://live.fptplay53.net/fnxsd1/caobang_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/90.png", g: "ĐỊA PHƯƠNG" },
+        { n: "LSTV HD _ TH LẠNG SƠN", u: "https://live.fptplay53.net/fnxsd1/langson_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/114.png", g: "ĐỊA PHƯƠNG" },
+        { n: "TTV HD _ TH TUYÊN QUANG", u: "https://live.fptplay53.net/fnxsd1/tuyenquang_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/128.png", g: "ĐỊA PHƯƠNG" },
+        { n: "TN HD _ TH THÁI NGUYÊN", u: "https://live.fptplay53.net/fnxsd1/thainguyen_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/126.png", g: "ĐỊA PHƯƠNG" },
+        { n: "PTV HD _ TH PHÚ THỌ", u: "https://live.fptplay53.net/fnxsd1/phutho_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/118.png", g: "ĐỊA PHƯƠNG" },
+        { n: "QTV1 HD _ TH QUẢNG NINH", u: "https://live.fptplay53.net/fnxsd1/quangninh1_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/120.png", g: "ĐỊA PHƯƠNG" },
+        { n: "QTV3 HD _ TH QUẢNG NINH", u: "https://live.fptplay53.net/fnxsd1/quangninh3_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/121.png", g: "ĐỊA PHƯƠNG" },
+        { n: "BTV _ TH BẮC NINH", u: "https://live.fptplay53.net/fnxsd1/bacninh01_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/82.png", g: "ĐỊA PHƯƠNG" },
+        { n: "YOUTV _ TH HÀ NỘI", u: "https://vietanhtv.id.vn/tv360/31/index.m3u8", l: "https://vnepg.site/logos/74.png", g: "ĐỊA PHƯƠNG" },
+        { n: "HITV _ TH HÀ NỘI", u: "https://freem3u.xyz/api/live/play.m3u8?vid=32", l: "https://vnepg.site/logos/73.png", g: "ĐỊA PHƯƠNG" },
+        { n: "H1 HD _ TH HÀ NỘI", u: "https://live.fptplay53.net/fnxhd2/hanoitv1_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/100.png", g: "ĐỊA PHƯƠNG" },
+        { n: "H2 HD _ TH HÀ NỘI", u: "https://live.fptplay53.net/fnxhd1/hntv2_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/101.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THP HD _ TH TP. HẢI PHÒNG", u: "https://live.fptplay53.net/fnxsd1/haiphong_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/103.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THP3 HD _ TH TP. HẢI PHÒNG", u: "https://live.fptplay53.net/fnxsd1/haiphongplus_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/105.png", g: "ĐỊA PHƯƠNG" },
+        { n: "NTV HD _ TH NINH BÌNH", u: "https://live.fptplay53.net/fnxsd1/ninhbinh_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/117.png", g: "ĐỊA PHƯƠNG" },
+        { n: "NTV HD _ TH NGHỆ AN", u: "https://live.fptplay53.net/fnxsd1/nghean_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/116.png", g: "ĐỊA PHƯƠNG" },
+        { n: "BHT HD _ TH HÀ TĨNH", u: "https://live.fptplay53.net/fnxsd1/hatinh_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/102.png", g: "ĐỊA PHƯƠNG" },
+        { n: "QTTV HD _ TH QUẢNG TRỊ", u: "https://live.fptplay53.net/epzsd1/quangtri_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/122.png", g: "ĐỊA PHƯƠNG" },
+        { n: "DNRT1 HD _ TH TP. ĐÀ NẴNG", u: "https://live.fptplay53.net/epzsd1/danang1_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/93.png", g: "ĐỊA PHƯƠNG" },
+        { n: "DNRT2 HD _ TH TP. ĐÀ NẴNG", u: "https://live.fptplay53.net/epzsd1/danang2_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/94.png", g: "ĐỊA PHƯƠNG" },
+        { n: "QNGTV1 _ TH QUẢNG NGÃI", u: "https://live.fptplay53.net/epzsd1/quangngai_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/119.png", g: "ĐỊA PHƯƠNG" },
+        { n: "QNGTV2 _ TH QUẢNG NGÃI", u: "https://vietanhtv.id.vn/vieon.php?type=tivi&kenh=kon-tum-1", l: "https://vnepg.site/logos/125.png", g: "ĐỊA PHƯƠNG" },
+        { n: "KTV HD _ TH KHÁNH HÒA", u: "https://live.fptplay53.net/epzsd1/khanhhoa_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/108.png", g: "ĐỊA PHƯƠNG" },
+        { n: "KTV1 HD _ TH KHÁNH HOÀ", u: "https://live.fptplay53.net/epzsd1/khanhhoa01_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/109.png", g: "ĐỊA PHƯƠNG" },
+        { n: "LTV1 HD _ TH LÂM ĐỒNG", u: "https://live.fptplay53.net/epzsd1/lamdong_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/111.png", g: "ĐỊA PHƯƠNG" },
+        { n: "LTV2 HD _ TH LÂM ĐỒNG", u: "https://live.fptplay53.net/epzsd1/lamdong01_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/112.png", g: "ĐỊA PHƯƠNG" },
+        { n: "GTV HD _ TH GIA LAI", u: "https://live.fptplay53.net/epzsd1/gialai01_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/99.png", g: "ĐỊA PHƯƠNG" },
+        { n: "DRT HD _ TH ĐẮK LẮK", u: "https://live.fptplay53.net/epzsd1/daklak_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/91.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ĐNNRTV1 HD _ TH ĐỒNG NAI", u: "https://live.fptplay53.net/epzsd1/dongnai1_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/95.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ĐNNRTV2 HD _ TH ĐỒNG NAI", u: "https://live.fptplay53.net/epzsd1/dongnai2_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/96.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ĐNNRTV3 _ TH ĐỒNG NAI", u: "https://vietanhtv.id.vn/vieon.php?type=tivi&kenh=dong-nai-3", l: "https://vnepg.site/logos/174.png", g: "ĐỊA PHƯƠNG" },
+        { n: "TN _ TH TÂY NINH", u: "https://vietanhtv.id.vn/tv360/72/index.m3u8", l: "https://vnepg.site/logos/124.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THĐT1 _ TH ĐỒNG THÁP", u: "https://live.fptplay53.net/epzsd1/dongthap_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/97.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THĐT2 MIỀN TÂY _ TH ĐỒNG THÁP", u: "https://live.fptplay53.net/epzsd1/dongthaphd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/98.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ATV1 HD _ TH AN GIANG", u: "https://live.fptplay53.net/epzsd1/angiang01_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/79.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ATV2 HD _ TH AN GIANG", u: "https://live.fptplay53.net/epzsd1/angiang_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/80.png", g: "ĐỊA PHƯƠNG" },
+        { n: "ATV3 HD _ TH AN GIANG", u: "https://live.fptplay53.net/epzsd1/angiang03_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/81.png", g: "ĐỊA PHƯƠNG" },
+        { n: "CẦN THƠ 1 HD _ TH TP. CẦN THƠ", u: "https://live.fptplay53.net/epzsd1/cantho_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/86.png", g: "ĐỊA PHƯƠNG" },
+        { n: "CẦN THƠ 2 HD _ TH CẦN THƠ", u: "https://live.fptplay53.net/epzsd1/cantho02_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/87.png", g: "ĐỊA PHƯƠNG" },
+        { n: "CẦN THƠ 3 HD _ TH TP. CẦN THƠ", u: "https://live.fptplay53.net/epzsd1/cantho03_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/88.png", g: "ĐỊA PHƯƠNG" },
+        { n: "CTV HD _ TH CÀ MAU", u: "https://live.fptplay53.net/epzsd1/camau_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/89.png", g: "ĐỊA PHƯƠNG" },
+        { n: "STV _ TH SƠN LA", u: "https://live.fptplay53.net/fnxsd1/sonla_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/123.png", g: "ĐỊA PHƯƠNG" },
+        { n: "HY _ TH HƯNG YÊN", u: "https://live.fptplay53.net/fnxsd1/hungyen_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/107.png", g: "ĐỊA PHƯƠNG" },
+        { n: "TTV _ TH THANH HÓA", u: "https://live.fptplay53.net/fnxsd1/thanhhoa_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/127.png", g: "ĐỊA PHƯƠNG" },
+        { n: "HUETV _ TH THỪA THIÊN HUẾ", u: "https://live.fptplay53.net/epzsd1/hue_hls.smil/chunklist_b2500000.m3u8", l: "https://vnepg.site/logos/106.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THVL1 HD - VĨNH LONG 1", u: "https://live.fptplay53.net/epzch2/vinhlong1_abr.smil/chunklist_b4200000.m3u8", l: "https://vnepg.site/logos/75.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THVL2 HD - VĨNH LONG 2", u: "https://live.fptplay53.net/epzhd2/vinhlong2_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/76.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THVL3 HD - VĨNH LONG 3", u: "https://live.fptplay53.net/epzhd2/vinhlong3_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/77.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THVL4 HD - VĨNH LONG 4", u: "https://live.fptplay53.net/epzhd2/vinhlong4hd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/78.png", g: "ĐỊA PHƯƠNG" },
+        { n: "THVL5 HD - VĨNH LONG 5", u: "https://live.fptplay53.net/epzsd1/vinhlong5_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/175.png", g: "ĐỊA PHƯƠNG" },
+        
+        // NHÓM SCTV
+        { n: "SCTV1", u: "https://liveh12.vtvprime.vn/hls/SCTV1/03.m3u8", l: "https://vnepg.site/logos/46.png", g: "SCTV" },
+        { n: "SCTV2", u: "https://liveh12.vtvprime.vn/hls/SCTV2/03.m3u8", l: "https://vnepg.site/logos/47.png", g: "SCTV" },
+        { n: "SCTV3", u: "https://liveh34.vtvprime.vn/hls/SCTV3/01.m3u8", l: "https://vnepg.site/logos/48.png", g: "SCTV" },
+        { n: "SCTV4", u: "https://liveh12.vtvprime.vn/hls/SCTV4/03.m3u8", l: "https://vnepg.site/logos/49.png", g: "SCTV" },
+        { n: "SCTV6", u: "https://live.fptplay53.net/epzhd2/film360_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/50.png", g: "SCTV" },
+        { n: "SCTV7", u: "https://liveh34.vtvprime.vn/hls/SCTV7/01.m3u8", l: "https://vnepg.site/logos/51.png", g: "SCTV" },
+        { n: "SCTV8", u: "https://liveh34.vtvprime.vn/hls/SCTV8/01.m3u8", l: "https://vnepg.site/logos/52.png", g: "SCTV" },
+        { n: "SCTV9", u: "https://livevlisctcdnw.seenow.vn/mean/SCTV9/manifest.mpd", i: "22a9a9a63d2746df9f90c184c596105a", k: "2d9d24caeaea42f8b44e413fe04f0e5c", l: "https://vnepg.site/logos/53.png", g: "SCTV" },
+        { n: "SCTV11", u: "https://liveh34.vtvprime.vn/hls/SCTV11/01.m3u8", l: "https://vnepg.site/logos/54.png", g: "SCTV" },
+        { n: "SCTV12", u: "https://liveh34.vtvprime.vn/hls/SCTV12/03.m3u8", l: "https://vnepg.site/logos/55.png", g: "SCTV" },
+        { n: "SCTV13", u: "https://liveh34.vtvprime.vn/hls/SCTV13/03.m3u8", l: "https://vnepg.site/logos/56.png", g: "SCTV" },
+        { n: "SCTV14", u: "https://liveh34.vtvprime.vn/hls/SCTV14/03.m3u8", l: "https://vnepg.site/logos/57.png", g: "SCTV" },
+        { n: "SCTV15", u: "https://livevlisctcdnw.seenow.vn/mean/SCTV15HD/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/58.png", g: "SCTV" },
+        { n: "SCTV16", u: "https://liveh34.vtvprime.vn/hls/SCTV16/04.m3u8", l: "https://vnepg.site/logos/59.png", g: "SCTV" },
+        { n: "SCTV17", u: "https://livevlisctcdnw.seenow.vn/mean/SCTV17/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/60.png", g: "SCTV" },
+        { n: "SCTV18", u: "https://liveh34.vtvprime.vn/hls/SCTV18/03.m3u8", l: "https://vnepg.site/logos/61.png", g: "SCTV" },
+        { n: "SCTV19", u: "https://liveh34.vtvprime.vn/hls/SCTV19/03.m3u8", l: "https://vnepg.site/logos/62.png", g: "SCTV" },
+        { n: "SCTV20", u: "https://liveh34.vtvprime.vn/hls/SCTV20/03.m3u8", l: "https://vnepg.site/logos/63.png", g: "SCTV" },
+        { n: "SCTV21", u: "https://liveh34.vtvprime.vn/hls/SCTV21/03.m3u8", l: "https://vnepg.site/logos/64.png", g: "SCTV" },
+        { n: "SCTV22", u: "https://liveh34.vtvprime.vn/hls/SCTV22/04.m3u8", l: "https://vnepg.site/logos/65.png", g: "SCTV" },
+        { n: "SCTV PHIM TỔNG HỢP", u: "https://liveh12.vtvprime.vn/hls/SCTVPHIM/03.m3u8", l: "https://vnepg.site/logos/170.png", g: "SCTV" },
+
+        // NHÓM QUỐC TẾ
+        { n: "ASIAN FOOD NETWORK", u: "https://live.fptplay53.net/fnxhd2/afchd_vhls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/172.png", g: "QUỐC TẾ" },
+        { n: "ARIRANG", u: "https://live.fptplay53.net/fnxhd2/arirang_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/152.png", g: "QUỐC TẾ" },
+        { n: "CNA", u: "https://live.fptplay53.net/fnxhd2/newsasia_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/157.png", g: "QUỐC TẾ" },
+        { n: "CNBC", u: "https://live.fptplay53.net/fnxsd1/cnbc_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/155.png", g: "QUỐC TẾ" },
+        { n: "DA VINCI", u: "https://live.fptplay53.net/fnxhd2/davincihd_vhls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/142.png", g: "QUỐC TẾ" },
+        { n: "DW ENGLISH", u: "https://live.fptplay53.net/fnxhd2/dwenglish_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/158.png", g: "QUỐC TẾ" },
+        { n: "FRANCE 24", u: "https://live.fptplay53.net/fnxhd2/france24_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/159.png", g: "QUỐC TẾ" },
+        { n: "KBS WORLD", u: "https://live.fptplay53.net/epzhd2/kbs_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/160.png", g: "QUỐC TẾ" },
+        { n: "KIX", u: "https://live.fptplay53.net/fnxhd2/kixhd_vhls.smil/chunklist_b5000000.m3u8", l: "https://vnepg.site/logos/167.png", g: "QUỐC TẾ" },
+        { n: "NHK WORLD JAPAN", u: "https://live.fptplay53.net/fnxhd2/nhkworld_vhls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/161.png", g: "QUỐC TẾ" },
+        { n: "OUTDOOR CHANNEL", u: "https://live.fptplay53.net/epzhd2/outdoorfhd_vhls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/146.png", g: "QUỐC TẾ" },
+        { n: "TV5MONDE ASIE", u: "https://live.fptplay53.net/fnxhd2/tv5_hls.smil/chunklist.m3u8", l: "https://vnepg.site/logos/162.png", g: "QUỐC TẾ" },
+        { n: "HGTV", u: "https://liveh34.vtvprime.vn/hls/HGTV/03.m3u8", l: "https://vnepg.site/logos/166.png", g: "QUỐC TẾ" },
+        { n: "HISTORY", u: "https://vietanhtv.id.vn/tv360/9887/index.m3u8", l: "https://vnepg.site/logos/147.png", g: "QUỐC TẾ" },
+        { n: "HBO", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/hbo.smil/manifest.mpd", i: "Cd3+PWOGPK+ut50FRrCYqw", k: "PeDzjc8BSCff1b7Dh0PGog", l: "https://vnepg.site/logos/129.png", g: "QUỐC TẾ" },
+        { n: "AXN", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/axn.smil/manifest.mpd", i: "nSn4fv3sPJ+rNo9ySmKtDg", k: "bxwJwDXqs2Mj1g0UVNs9IA", l: "https://vnepg.site/logos/163.png", g: "QUỐC TẾ" },
+        { n: "CINEMAX", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/max.smil/manifest.mpd", i: "rLTCNHEGMyetxzLig8CEfw", k: "6YaPX0c9D9hpnt5I1THCsA", l: "https://vnepg.site/logos/130.png", g: "QUỐC TẾ" },
+        { n: "CINEMAWORLD", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/cinemaworld.smil/manifest.mpd", i: "7nkVVk10OdCb01Vv/MyHpA", k: "s14Sp1pCpvkYRyOpD/QtnA", l: "https://vnepg.site/logos/164.png", g: "QUỐC TẾ" },
+        { n: "WARNER TV", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/wtv.smil/manifest.mpd", i: "CG0JpAv/OgCqbdTbr5wTsg", k: "NPGQjP4uBe4GAEbUDxSuyQ", l: "https://vnepg.site/logos/169.png", g: "QUỐC TẾ" },
+        { n: "DISCOVERY", u: "https://s7770.cdn.mytvnet.vn/pkg20/live_dzones/dsc.smil/manifest.mpd", i: "60Fg6lU6Mh2JlVPk55b+wg", k: "vqWgcVfgxNF7Eas5lRf5Ug", l: "https://vnepg.site/logos/144.png", g: "QUỐC TẾ" },
+        { n: "DISCOVERY ASIA", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/dscasia.smil/manifest.mpd", i: "k0kHsTS+OWOmJjpFOEaSTA", k: "eI4oNfuYVortL0e73AkVFQ", l: "https://vnepg.site/logos/145.png", g: "QUỐC TẾ" },
+        { n: "ANIMAL PLANET", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/ap.smil/manifest.mpd", i: "7G8HLHElN3qbwK5hWYCV9A", k: "HVOI4HgUFevOyZFPWtdYdQ", l: "https://vnepg.site/logos/143.png", g: "QUỐC TẾ" },
+        { n: "DMAX", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/dmax.smil/manifest.mpd", i: "U7JvkErgOiC1ZHfPucXcog", k: "DGTM+5eOc5C9MzRAdUkq7A", l: "https://img.lichphatsong.site/logo/dmax.jpg", g: "QUỐC TẾ" },
+        { n: "TLC", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/tlc.smil/manifest.mpd", i: "tpCGKXMmOa2kgUpiCCltnA", k: "fKm/A2I/d7Xi8W3wtT8nTQ", l: "https://vnepg.site/logos/168.png", g: "QUỐC TẾ" },
+        { n: "CNN", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/cnn.smil/manifest.mpd", i: "cUzI7QWgOruaxhvUu9HYoA", k: "Gs9Y/41M2HwtPBLSIkjvsQ", l: "https://vnepg.site/logos/156.png", g: "QUỐC TẾ" },
+        { n: "BBC NEWS", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/bbcworldnews.smil/manifest.mpd", i: "x7pGCG3aNFqSnim/FV5FnA", k: "03S485kEv1cmieo0euhlkQ", l: "https://vnepg.site/logos/151.png", g: "QUỐC TẾ" },
+        { n: "BLOOMBERG", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/bloomberg.smil/manifest.mpd", i: "EHE5P4/CN/OpooAoFCEQ9w", k: "eg+MPHLg//+BHVNMkpxXwg", l: "https://vnepg.site/logos/154.png", g: "QUỐC TẾ" },
+        { n: "CARTOON NETWORK", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/cn.smil/manifest.mpd", i: "PCAWZmCpOnWsd9uBVnOJ9w", k: "PMGt1Drszj/jHJxqKluMIQ", l: "https://vnepg.site/logos/140.png", g: "QUỐC TẾ" },
+        { n: "CARTOONITO", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/boomerang.smil/manifest.mpd", i: "sfDXWekUNp2ziLOw3IFZcQ", k: "VnjTF-FwB6iKm5U55FJlEg", l: "https://www.diversetechgeek.com/wp-content/uploads/2021/09/cartoonito_logo.jpeg", g: "QUỐC TẾ" },
+        { n: "DREAMWORKS", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/dreamwork.smil/manifest.mpd", i: "Z9riBSfGPa2qrmCaqRV3yw", k: "WTKPYh1WdnvF/5QEqJQGgw", l: "https://vnepg.site/logos/141.png", g: "QUỐC TẾ" },
+        { n: "BBC EARTH", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/bbcearth.smil/manifest.mpd", i: "UBSUGixCN5iAte33IwTBZQ", k: "8/oP4805pS9O79Nv9xYeiQ", l: "https://vnepg.site/logos/148.png", g: "QUỐC TẾ" },
+        { n: "BBC CBEEBIES", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/cbb.smil/manifest.mpd", i: "zKc6AGtLOaWVIHzrXtnKCg", k: "uDPR9AwmHveIlvl+BvgM3A", l: "https://vnepg.site/logos/150.png", g: "QUỐC TẾ" },
+        { n: "BBC LIFESTYLE", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/bbclifestyle.smil/manifest.mpd", i: "WLlJmG7RMpS8AbDzMKvFJw", k: "I+jF8v4gKQasLWVU2VJymQ", l: "https://vnepg.site/logos/149.png", g: "QUỐC TẾ" },
+        { n: "FASHION TV", u: "https://s2129134.cdn.mytvnet.vn/pkg20/live_dzones/ftv.smil/manifest.mpd", i: "wdnyVwECNQi/pnN+OoxwAQ", k: "MMNhPpsG4PfMIBAU8xv12A", l: "https://vnepg.site/logos/165.png", g: "QUỐC TẾ" },
+        { n: "BOX MOVIE 1", u: "https://livevlisctcdnw.seenow.vn/mean/BM1/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/131.png", g: "QUỐC TẾ" },
+        { n: "HOLLYWOOD CLASSICS", u: "https://livevlisctcdnw.seenow.vn/mean/HC/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/132.png", g: "QUỐC TẾ" },
+        { n: "BOX HITS", u: "https://livevlisctcdnw.seenow.vn/mean/BOXHIT/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/134.png", g: "QUỐC TẾ" },
+        { n: "MUSIC BOX", u: "https://livevlisctcdnw.seenow.vn/mean/MUSICBOX/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/171.png", g: "QUỐC TẾ" },
+        { n: "WOMAN", u: "https://livevlisctcdnw.seenow.vn/livesnv2/WO/manifest.mpd", i: "a7c942778e874d43be92b8d0a0cd11b4", k: "6d54358306571658ffdb952c6560688b", l: "https://vnepg.site/logos/139.png", g: "QUỐC TẾ" },
+
+        // NHÓM TV360 (LINK MỚI + GIỮ NGUYÊN THAM SỐ I VÀ K)
+        { n: "TV360+1", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=2554", i: "47404f622db3536c867b2545581aadb4", k: "9fbdc12cfe74564fd4329baa6a6d1968", l: "https://img-ali1.tv360.vn/image1/2024/09/24/21/1727189720461/dc4ee8910c25_640_360.png", g: "TV360" },
+        { n: "TV360+2", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=1", i: "2c24f672f7715433a83953e74ae564b1", k: "10a63f9f2ccd81dfc4a05263c2fd1575", l: "https://img-ali1.tv360.vn/image1/2024/09/24/21/1727189794311/c4d18ecff9f7_640_360.png", g: "TV360" },
+        { n: "TV360+3", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=148", i: "8405a15e96b35497bde131a29e7fb67e", k: "adb30d908915cf14760880240961a5ed", l: "https://img-ali1.tv360.vn/image1/2024/09/24/21/1727189872609/e569653d09d3_640_360.png", g: "TV360" },
+        { n: "TV360+4", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=2458", i: "70d033252d025d719ba70a37acc0f5c8", k: "6ca465d8b3018f1604da6d43d3395a6d", l: "https://img-ali1.tv360.vn/image1/2024/09/24/21/1727189917617/5db9e5a7d0fd_640_360.png", g: "TV360" },
+        { n: "TV360+5", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=9867", i: "edfa094d8ac55cf98f5867128a926aa7", k: "0e10fa6099105e2e0a7ce1e34e9c0230", l: "https://img-ali1.tv360.vn/image1/2024/09/24/21/1727189978632/51f31c767a91_640_360.png", g: "TV360" },
+        { n: "TV360+6", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=9868", i: "e1389121e18651169badabee05aef5ba", k: "0b65b7091cd1474160e0de4ef106ac5d", l: "https://img-ali1.tv360.vn/image1/2024/09/24/22/1727190010448/7463a4b5c14d_640_360.png", g: "TV360" },
+        { n: "TV360+7", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=9869", i: "072f0a0d4eda40cbb04dfadf521a2b9f", k: "2fb11373b36e018573d3b07132df050e", l: "https://img-ali1.tv360.vn/image1/2024/09/24/22/1727190077791/4922144877f1_640_360.png", g: "TV360" },
+        { n: "TV360+8", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=9870", i: "1a08bd3a8c565cdfa4e01a0273915f40", k: "d956d96ac3799d42441f582ec12f10df", l: "https://img-ali1.tv360.vn/image1/2024/09/24/22/172719012995/8df54b2f7576_640_360.png", g: "TV360" },
+        { n: "TV360+9", u: "https://sgclient.duckdns.org/source/tv360.m3u8?id=9887", l: "https://img-ali1.tv360.vn/image1/2024/09/30/22/1727709197325/1be646ba55c5_640_360.png", g: "TV360" },
+        { n: "TV360+10", u: "https://sgclient.duckdns.org/source/tv360.m3u8?id=9957", l: "https://img-ali1.tv360.vn/image1/2025/09/30/16/1759223393533/4ff09f8a4b49_640_360.png", g: "TV360" },
+        { n: "TV360+11", u: "https://sgclient.duckdns.org/source/tv360.m3u8?id=9958", l: "https://img-ali1.tv360.vn/image1/2025/09/30/16/175922342147/3c89be41fe63_640_360.png", g: "TV360" },
+        { n: "TV360+12", u: "https://sgclient.duckdns.org/source/tv360.mpd?id=10001", i: "70d033252d025d719ba70a37acc0f5c8", k: "6ca465d8b3018f1604da6d43d3395a6d", l: "https://img-ali1.tv360.vn/image1/2026/03/05/10/1772681417916/2433e49579ab_640_360.png", g: "TV360" }
+        ];
+
+    const GROUP_ORDER = ["ALL", "VTV", "THIẾT YẾU", "VTVCAB", "HTV", "SCTV", "ĐỊA PHƯƠNG", "QUỐC TẾ", "TV360"];
+
+    function handleUI() {
+    // Danh sách các nút cần ẩn
+    const controls = [
+        document.getElementById('menu-toggle'),
+        document.getElementById('settings-btn'),
+        document.getElementById('full-page-btn')
+    ];
+
+    // Hiện tất cả lên khi có tác động
+    controls.forEach(el => {
+        if(el) el.classList.remove('ui-hidden');
+    });
+    document.body.classList.remove('hide-cursor');
+
+    clearTimeout(hideTimeout);
+    clearTimeout(cursorTimeout);
+
+    // Sau 3 giây không làm gì thì ẩn đi
+    hideTimeout = setTimeout(() => {
+        // Chỉ ẩn nếu Menu và Cài đặt đang ĐÓNG
+        const isMenuOpen = sidebar.classList.contains('open');
+        const isSettingsOpen = settingsModal.style.display === 'block';
+
+        if (!isMenuOpen && !isSettingsOpen) {
+            controls.forEach(el => {
+                if(el) el.classList.add('ui-hidden');
+            });
+        }
+    }, 3000);
+
+    // Ẩn con trỏ chuột
+    cursorTimeout = setTimeout(() => {
+        if (document.fullscreenElement) {
+            document.body.classList.add('hide-cursor');
+        }
+    }, 3000);
+}
+
+    function toggleMenu() { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); }
+    
+    function toggleSettings() { 
+        const isShow = settingsModal.style.display === 'block';
+        settingsModal.style.display = isShow ? 'none' : 'block';
+        overlay.classList.toggle('show', !isShow);
+    }
+
+    function closeAll() { 
+        sidebar.classList.remove('open'); 
+        overlay.classList.remove('show'); 
+        settingsModal.style.display = 'none'; 
+    }
+
+    function toggleFullPage() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+
+    function toHex(val) {
+        if (!val || val.length === 32) return val;
+        try { return Array.from(atob(val.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0).toString(16).padStart(2,'0')).join(''); } catch(e) { return val; }
+    }
+
+    async function init() {
+        shaka.polyfill.installAll();
+        shakaPlayer = new shaka.Player();
+        renderTabs(); renderList();
+        if(FIXED_CHANNELS.length > 0) play(FIXED_CHANNELS[0]);
+    }
+
+    async function play(ch) {
+        // Tắt hết các player phụ trước khi chuyển kênh
+        if (hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
+        await shakaPlayer.detach(); 
+        video.src = "";
+        video.removeAttribute("src");
+        video.load();
+
+        const url = ch.u.toLowerCase();
+        const isMpd = url.includes('.mpd') || (ch.i && ch.k);
+        const isPhpOrM3u8 = url.includes('.php') || url.includes('.m3u8');
+
+        if (isMpd) {
+            // DÙNG SHAKA CHO MPD DRM
+            let drmConfig = { clearKeys: {} };
+            if (ch.i && ch.k) {
+                drmConfig.clearKeys[toHex(ch.i)] = toHex(ch.k);
+            }
+            await shakaPlayer.attach(video);
+            shakaPlayer.configure({ drm: drmConfig });
+            try { await shakaPlayer.load(ch.u); } catch(e) {}
+        } 
+        else if (isPhpOrM3u8) {
+            // DÙNG TRÌNH PHÁT GỐC CHO LINK PHP/M3U8 CỦA KHÔI
+            console.log("Đang dùng trình phát gốc cho:", ch.n);
+            video.src = ch.u;
+            video.play().catch(() => {
+                // Nếu trình phát gốc kén quá thì mới dùng Hls.js làm dự phòng
+                if (Hls.isSupported()) {
+                    hlsPlayer = new Hls();
+                    hlsPlayer.loadSource(ch.u);
+                    hlsPlayer.attachMedia(video);
+                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                }
+            });
+        }
+
+        renderList(ch.u);
+        if(window.innerWidth < 800) sidebar.classList.remove('open');
+    }
+
+    function renderTabs() {
+        document.getElementById('tab-box').innerHTML = GROUP_ORDER.map(g => 
+            `<button class="${curTab === g ? 'active' : ''}" onclick="setTab('${g}', this)">${g === 'ALL' ? 'TẤT CẢ' : g}</button>`
+        ).join('');
+    }
+
+    function renderList(activeUrl = "") {
+        const box = document.getElementById('list');
+        box.innerHTML = "";
+        FIXED_CHANNELS.forEach(ch => {
+            if (curTab !== 'ALL' && ch.g !== curTab) return;
+            const div = document.createElement('div');
+            div.className = `item ${ch.u === activeUrl ? 'active' : ''}`;
+            div.innerHTML = `<img src="${ch.l}" onerror="this.src='https://via.placeholder.com/50?text=TV'"><span>${ch.n}</span>`;
+            div.onclick = () => play(ch);
+            box.appendChild(div);
+        });
+    }
+
+    function setTab(t, btn) { curTab = t; renderTabs(); renderList(); }
+
+    init();
+</script>
 </body>
 </html>
