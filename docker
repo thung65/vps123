@@ -1,0 +1,15 @@
+# Sử dụng bản PHP chính thức tích hợp Apache
+FROM php:8.2-apache
+
+# Kích hoạt tính năng mod_rewrite để đọc file .htaccess và mod_ssl cho cổng 443
+RUN a2enmod rewrite ssl
+
+# Cấu hình cho phép Apache ghi đè (AllowOverride All) để .htaccess hoạt động
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# Sao chép toàn bộ code IPTV và file .htaccess của Huy vào Docker
+COPY . /var/www/html/
+
+# Mở đồng thời cả 2 cổng 80 và 443
+EXPOSE 80
+EXPOSE 443
