@@ -1,18 +1,32 @@
-name: SCTV1
+name: IPTV Stream Controller
 
 on:
-  workflow_dispatch: # Cho phép bạn chạy thủ công từ tab Actions
-  schedule:
-    - cron: '0 * * * *' # Tự động chạy lại mỗi giờ để tránh timeout
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Chọn hành động'
+        required: true
+        default: 'start'
+        options:
+          - start
+          - stop
 
 jobs:
-  stream:
-    runs-on: ubuntu-latest
+  control_stream:
+    runs-on: self-hosted  # Chạy trực tiếp trên VPS Việt Nam của bạn
     steps:
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Start Streaming
+      - name: Start or Stop Stream
         run: |
-          ffmpeg -re -i "https://hoiquan.dpdns.org/VTVGo/?sctv1" \
-          -c copy -f flv rtmp://42.1.99.192/live/sctv1
+          if [ "${{ github.event.inputs.action }}" == "start" ]; then
+            echo "Đang khởi động luồng..."
+            # Dùng nohup để FFmpeg chạy nền, không bị tắt khi xong workflow
+            # Thêm User-Agent để tránh bị chặn
+            nohup ffmpeg -re -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+            -i "https://hoiquan.dpdns.org/VTVGo/?sctv1" \
+            -c copy -f flv rtmp://42.1.99.192/live/vtv1 > stream.log 2>&1 &
+            echo "Luồng đã chạy ngầm!"
+          else
+            echo "Đang dừng luồng..."
+            pkill -f ffmpeg
+            echo "Đã dừng tất cả các luồng!"
+          fi
