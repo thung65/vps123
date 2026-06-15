@@ -40,20 +40,3 @@ jobs:
           ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=dongnai1" -c copy -f flv rtmp://42.1.99.192/live/dongnai1 &
           ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=dongnai2" -c copy -f flv rtmp://42.1.99.192/live/dongnai2 &
           wait
-
-  stream-local-3:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - name: Stream Local 3
-        run: |
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=dongthap1" -c copy -f flv rtmp://42.1.99.192/live/dongthap1 &
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=dongthap2" -c copy -f flv rtmp://42.1.99.192/live/dongthap2 &
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=gialai" -c copy -f flv rtmp://42.1.99.192/live/gialai &
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=hue" -c copy -f flv rtmp://42.1.99.192/live/hue &
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=hanoi1" -c copy -f flv rtmp://42.1.99.192/live/hanoi1 &
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=hanoi2" -c copy -f flv rtmp://42.1.99.192/live/hanoi2 &
-          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=haiphong" -c copy -f flv rtmp://42.1.99.192/live/haiphong &
-          wait
