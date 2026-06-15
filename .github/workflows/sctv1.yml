@@ -1,38 +1,44 @@
-name: RTMP Streamer
+name: IPTV Streamer
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 * * * *'
 
 jobs:
-  stream:
+  # NHÓM 1: HTV & HTVC
+  stream-htv:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: write
+    timeout-minutes: 360
     steps:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Start Streaming
+      - name: Stream HTV
         run: |
-          # Giả lập đầy đủ Header của trình duyệt để vượt 403
-          timeout 21000s ffmpeg -hide_banner -loglevel error \
-          -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-          -headers "Referer: https://hoiquan.dpdns.org/" \
-          -headers "Origin: https://hoiquan.dpdns.org/" \
-          -headers "Accept: */*" \
-          -re -i "https://hoiquan.dpdns.org/VTVGo/?sctv1" \
-          -c copy -f flv -rtmp_live live \
-          rtmp://42.1.99.192/live/sctv1 || echo "Stream ended"
+          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=190" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv1 &
+          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=191" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv2 &
+          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=192" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv3 &
+          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=9" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv4 &
+          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=151" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv5 &
+          ffmpeg -re -i "https://live.fptplay53.net/live/media/htv7/live247-hls-avc/htv7-avc1_5600000=10000-mp4a_131600=20000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv7 &
+          ffmpeg -re -i "https://live-a.fptplay53.net/live/media/htv9/live247-hls-avc/htv9-avc1_5600000=10000-mp4a_131600=20000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv9 &
+          ffmpeg -re -i "https://live.fptplay53.net/live/media/htvthethao/live247-hls-avc/htvthethao-avc1_5600000=10000-mp4a_131600=20000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvthethao &
+          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcthuanviet &
+          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcgiadinh &
+          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcphunu_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcphunu &
+          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist_b5000000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcdulich &
+          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcmusic_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcmusic &
+          wait
 
-      - name: Auto-Restart Workflow
+  # NHÓM 2: QUỐC TẾ (THIẾT YẾU)
+  stream-quoc-te:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Stream Quoc Te
         run: |
-          # Gọi API để tự kích hoạt lại chính nó
-          curl -L -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/thung65/vps123/actions/workflows/stream.yml/dispatches \
-            -d '{"ref":"main"}'
+          ffmpeg -re -i "https://live.fptplay53.net/fnxhd2/anninhtv_vhls.smil/chunklist_b5000000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/antv &
+          ffmpeg -re -i "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b5000000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/qpvn &
+          wait
