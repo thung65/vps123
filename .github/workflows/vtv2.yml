@@ -1,0 +1,18 @@
+name: IPTV Streamer
+
+on:
+  workflow_dispatch: # Cho phép bạn chạy thủ công từ tab Actions
+  schedule:
+    - cron: '0 * * * *' # Tự động chạy lại mỗi giờ để tránh timeout
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Start Streaming
+        run: |
+          ffmpeg -re -i "https://live.fptplay53.net/live/media/vtv2/live247-hls-avc/vtv2-avc1_5600000=10000-mp4a_131600=20000.m3u8" \
+          -c copy -f flv rtmp://42.1.99.192/live/vtv2
