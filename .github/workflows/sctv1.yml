@@ -10,27 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write # Bắt buộc có dòng này để API có quyền gọi lại chính nó
+      actions: write
     steps:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Start Streaming
         run: |
-          # Thêm headers Referer và User-Agent giả lập Chrome để vượt 403
+          # Giả lập đầy đủ Header của trình duyệt để vượt 403
           timeout 21000s ffmpeg -hide_banner -loglevel error \
           -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
           -headers "Referer: https://hoiquan.dpdns.org/" \
+          -headers "Origin: https://hoiquan.dpdns.org/" \
+          -headers "Accept: */*" \
           -re -i "https://hoiquan.dpdns.org/VTVGo/?sctv1" \
           -c copy -f flv -rtmp_live live \
           rtmp://42.1.99.192/live/sctv1 || echo "Stream ended"
 
       - name: Auto-Restart Workflow
         run: |
-          curl -L \
-            -X POST \
+          # Gọi API để tự kích hoạt lại chính nó
+          curl -L -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/workflows/stream.yml/dispatches \
+            https://api.github.com/repos/thung65/vps123/actions/workflows/stream.yml/dispatches \
             -d '{"ref":"main"}'
