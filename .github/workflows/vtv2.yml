@@ -1,18 +1,23 @@
-name: IPTV Streamer
+name: VTV2
 
 on:
-  workflow_dispatch: # Cho phép bạn chạy thủ công từ tab Actions
+  workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' # Tự động chạy lại mỗi giờ để tránh timeout
+    - cron: '0 * * * *'
 
 jobs:
   stream:
     runs-on: ubuntu-latest
+    timeout-minutes: 360 # Giới hạn tối đa 6 tiếng
     steps:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Start Streaming
         run: |
-          ffmpeg -re -i "https://live.fptplay53.net/live/media/vtv2/live247-hls-avc/vtv2-avc1_5600000=10000-mp4a_131600=20000.m3u8" \
-          -c copy -f flv rtmp://42.1.99.192/live/vtv2
+          # Chạy stream với giới hạn 5 tiếng 50 phút (21000 giây)
+          # Thêm các tham số tự động reconnect để luồng ổn định hơn
+          ffmpeg -re -rtsp_transport tcp \
+          -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 5 \
+          -i "https://live.fptplay53.net/live/media/vtv2/live247-hls-avc/vtv2-avc1_5600000=10000-mp4a_131600=20000.m3u8" \
+          -t 21000 -c copy -f flv rtmp://42.1.99.192/live/vtv2
