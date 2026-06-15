@@ -1,32 +1,34 @@
-name: IPTV Stream Controller
+name: RTMP Streamer
 
 on:
   workflow_dispatch:
-    inputs:
-      action:
-        description: 'Chọn hành động'
-        required: true
-        default: 'start'
-        options:
-          - start
-          - stop
+  schedule:
+    - cron: '0 */6 * * *' # Tự chạy mỗi 6 tiếng
 
 jobs:
-  control_stream:
-    runs-on: self-hosted  # Chạy trực tiếp trên VPS Việt Nam của bạn
+  stream:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Start or Stop Stream
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Start Streaming
         run: |
-          if [ "${{ github.event.inputs.action }}" == "start" ]; then
-            echo "Đang khởi động luồng..."
-            # Dùng nohup để FFmpeg chạy nền, không bị tắt khi xong workflow
-            # Thêm User-Agent để tránh bị chặn
-            nohup ffmpeg -re -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-            -i "https://hoiquan.dpdns.org/VTVGo/?sctv1" \
-            -c copy -f flv rtmp://42.1.99.192/live/vtv1 > stream.log 2>&1 &
-            echo "Luồng đã chạy ngầm!"
-          else
-            echo "Đang dừng luồng..."
-            pkill -f ffmpeg
-            echo "Đã dừng tất cả các luồng!"
-          fi
+          # Chạy luồng trong đúng 5 giờ 50 phút rồi thoát
+          timeout 21000s ffmpeg -hide_banner -loglevel error \
+          -user_agent "Mozilla/5.0" \
+          -re -i "https://hoiquan.dpdns.org/VTVGo/?sctv1" \
+          -c copy -f flv rtmp://42.1.99.192/live/sctv1 || echo "Stream ended"
+
+      - name: Auto-Restart Workflow
+        run: |
+          # Gửi yêu cầu tới GitHub API để tự kích hoạt lại chính nó
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/stream.yml/dispatches \
+            -d '{"ref":"main"}'
