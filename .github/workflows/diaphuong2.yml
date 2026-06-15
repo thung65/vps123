@@ -1,0 +1,61 @@
+name: Local Channels Streamer
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  stream-local-1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Stream Local 1
+        run: |
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=haiphong3" -c copy -f flv rtmp://42.1.99.192/live/haiphong3 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=hatinh" -c copy -f flv rtmp://42.1.99.192/live/hatinh &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=hungyen" -c copy -f flv rtmp://42.1.99.192/live/hungyen &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=khanhhoa" -c copy -f flv rtmp://42.1.99.192/live/khanhhoa &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=laocai" -c copy -f flv rtmp://42.1.99.192/live/laocai &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=laichau" -c copy -f flv rtmp://42.1.99.192/live/laichau &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=lamdong1" -c copy -f flv rtmp://42.1.99.192/live/lamdong1 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=lamdong2" -c copy -f flv rtmp://42.1.99.192/live/lamdong2 &
+          wait
+
+  stream-local-5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Stream Local 2
+        run: |
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=nghean" -c copy -f flv rtmp://42.1.99.192/live/nghean &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=phutho" -c copy -f flv rtmp://42.1.99.192/live/phutho &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=quangngai1" -c copy -f flv rtmp://42.1.99.192/live/quangngai1 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=quangngai2" -c copy -f flv rtmp://42.1.99.192/live/quangngai2 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=quangninh1" -c copy -f flv rtmp://42.1.99.192/live/quangninh1 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=quangninh3" -c copy -f flv rtmp://42.1.99.192/live/quangninh3 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=quangtri" -c copy -f flv rtmp://42.1.99.192/live/quangtri &
+          wait
+
+  stream-local-6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Stream Local 3
+        run: |
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=thanhhoa" -c copy -f flv rtmp://42.1.99.192/live/thanhhoa &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=tuyenquang" -c copy -f flv rtmp://42.1.99.192/live/tuyenquang &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=thainguyen" -c copy -f flv rtmp://42.1.99.192/live/thainguyen &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=tayninh" -c copy -f flv rtmp://42.1.99.192/live/tayninh &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=vinhlong1hd" -c copy -f flv rtmp://42.1.99.192/live/vinhlong1 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=vinhlong2hd" -c copy -f flv rtmp://42.1.99.192/live/vinhlong2 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=vinhlong3hd" -c copy -f flv rtmp://42.1.99.192/live/vinhlong3 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=vinhlong4hd" -c copy -f flv rtmp://42.1.99.192/live/vinhlong4 &
+          ffmpeg -re -i "https://sgchill.duckdns.org/source/fptplay.m3u8?id=vinhlong5hd" -c copy -f flv rtmp://42.1.99.192/live/vinhlong5 &
+          wait
