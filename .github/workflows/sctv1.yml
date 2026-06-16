@@ -1,4 +1,4 @@
-name: IPTV Streamer
+name: Stream HTV
 
 on:
   workflow_dispatch:
@@ -6,39 +6,26 @@ on:
     - cron: '0 * * * *'
 
 jobs:
-  # NHÓM 1: HTV & HTVC
-  stream-htv:
+  stream:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - name: Stream HTV
+      - name: Start Streaming
         run: |
-          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=190" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv1 &
-          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=191" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv2 &
-          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=192" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv3 &
-          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=9" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv4 &
-          ffmpeg -re -user_agent "Mozilla/5.0" -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=151" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv5 &
-          ffmpeg -re -i "https://live.fptplay53.net/live/media/htv7/live247-hls-avc/htv7-avc1_5600000=10000-mp4a_131600=20000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv7 &
-          ffmpeg -re -i "https://live-a.fptplay53.net/live/media/htv9/live247-hls-avc/htv9-avc1_5600000=10000-mp4a_131600=20000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htv9 &
-          ffmpeg -re -i "https://live.fptplay53.net/live/media/htvthethao/live247-hls-avc/htvthethao-avc1_5600000=10000-mp4a_131600=20000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvthethao &
-          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcthuanviet &
-          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcgiadinh &
-          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcphunu_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcphunu &
-          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist_b5000000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcdulich &
-          ffmpeg -re -i "https://live.fptplay53.net/epzhd1/htvcmusic_vhls.smil/chunklist.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/htvcmusic &
-          wait
-
-  # NHÓM 2: QUỐC TẾ (THIẾT YẾU)
-  stream-quoc-te:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - name: Stream Quoc Te
-        run: |
-          ffmpeg -re -i "https://live.fptplay53.net/fnxhd2/anninhtv_vhls.smil/chunklist_b5000000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/antv &
-          ffmpeg -re -i "https://live.fptplay53.net/fnxhd2/quocphongvnhd_vhls.smil/chunklist_b5000000.m3u8" -t 21000 -c copy -f flv rtmp://42.1.99.192/live/qpvn &
+          sudo apt-get install -y ffmpeg
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htv1_hls.smil/chunklist_b2500000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv1 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htv2hd_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv2 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htv3_hls.smil/chunklist_b2500000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv3 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htv4_hls.smil/chunklist_b2500000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv4 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxsd1/btv9_hls.smil/chunklist_b2500000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv5 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzch2/htv7hd_abr.smil/chunklist_b4200000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv7 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htv9hd_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htv9 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcthethao_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvthethao &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcmusic_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvccanhac &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcdulich_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvcdulich &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcgiadinh_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvcgiadinh &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcmovieshd_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvcphim &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcphunu_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvcphunu &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcthuanviethd_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvcthuanviet &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzhd1/htvcplus_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/htvcplus &
           wait
