@@ -13,19 +13,19 @@ jobs:
       - name: Start Streaming
         run: |
           sudo apt-get install -y ffmpeg
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv1/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv1 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv2/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv2 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv3 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv4/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv4 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxhd1/vntoday_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vntoday &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv5/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv5 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv5tnb/live-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv5tnb &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv5tn/live-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv5tn &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv6 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv7/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv7 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv8/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv8 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv9/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv9 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv10/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192/live/vtv10 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/antv/live-hls-avc/antv-avc1_4000000=10000-mp4a_131600=20000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/antv &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/quocphongvn/live-hls-avc/quocphongvn-avc1_4000000=10000-mp4a_131600=20000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/qpvn &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv1/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv1 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv2/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv2 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv3/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv3 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv4/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv4 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxhd1/vntoday_vhls.smil/chunklist_b5000000.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vntoday &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv5/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv5 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv5tnb/live-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv5tnb &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv5tn/live-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv5tn &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv6/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv6 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv7/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv7 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv8/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv8 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv9/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv9 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/vtv10/live247-hls-avc/index.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/vtv10 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/antv/live-hls-avc/antv-avc1_4000000=10000-mp4a_131600=20000.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/antv &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/quocphongvn/live-hls-avc/quocphongvn-avc1_4000000=10000-mp4a_131600=20000.m3u8" -c copy -f flv rtmp://42.1.99.192:8080/live/qpvn &
           wait
