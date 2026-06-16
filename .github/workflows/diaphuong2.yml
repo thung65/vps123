@@ -1,4 +1,4 @@
-Gname: Stream Local 2
+name: Stream Local 2
 
 on:
   workflow_dispatch:
