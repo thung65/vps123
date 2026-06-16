@@ -13,18 +13,19 @@ jobs:
       - name: Start Streaming
         run: |
           sudo apt-get install -y ffmpeg
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2631" -c copy -f flv rtmp://42.1.99.192/live/htv1 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/vieon/vieon.php?id=vie-channel-htv2-hd" -c copy -f flv rtmp://42.1.99.192/live/htv2hd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2535" -c copy -f flv rtmp://42.1.99.192/live/htv3 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2528" -c copy -f flv rtmp://42.1.99.192/live/htvkey &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=256" -c copy -f flv rtmp://42.1.99.192/live/htv7hd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2667" -c copy -f flv rtmp://42.1.99.192/live/htv9hd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/vieon/vieon.php?id=ba-ria-vung-tau-1" -c copy -f flv rtmp://42.1.99.192/live/htvthethaohd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=13" -c copy -f flv rtmp://42.1.99.192/live/htvcthuanviet &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=132" -c copy -f flv rtmp://42.1.99.192/live/htvcplushd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=133" -c copy -f flv rtmp://42.1.99.192/live/htvcdulichhd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=14" -c copy -f flv rtmp://42.1.99.192/live/htvccanhachd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=15" -c copy -f flv rtmp://42.1.99.192/live/htvcphimhd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=11" -c copy -f flv rtmp://42.1.99.192/live/htvcgiadinhhd &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=12" -c copy -f flv rtmp://42.1.99.192/live/htvcphunuhd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2631" -c copy -f flv rtmp://42.1.99.192:8080/live/htv1 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/vieon/vieon.php?id=vie-channel-htv2-hd" -c copy -f flv rtmp://42.1.99.192:8080/live/htv2hd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2535" -c copy -f flv rtmp://42.1.99.192:8080/live/htv3 &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2528" -c copy -f flv rtmp://42.1.99.192:8080/live/htvkey &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=256" -c copy -f flv rtmp://42.1.99.192:8080/live/htv7hd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/htv/htv.php?id=2667" -c copy -f flv rtmp://42.1.99.192:8080/live/htv9hd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/vieon/vieon.php?id=ba-ria-vung-tau-1" -c copy -f flv rtmp://42.1.99.192:8080/live/htvthethaohd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=13" -c copy -f flv rtmp://42.1.99.192:8080/live/htvcthuanviet &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=132" -c copy -f flv rtmp://42.1.99.192:8080/live/htvcplushd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=133" -c copy -f flv rtmp://42.1.99.192:8080/live/htvcdulichhd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=14" -c copy -f flv rtmp://42.1.99.192:8080/live/htvccanhachd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=15" -c copy -f flv rtmp://42.1.99.192:8080/live/htvcphimhd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=11" -c copy -f flv rtmp://42.1.99.192:8080/live/htvcgiadinhhd &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://vpsttt.vietanhtv.top/tv360/tv360.php?id=12" -c copy -f flv rtmp://42.1.99.192:8080/live/htvcphunuhd &
             wait
+
