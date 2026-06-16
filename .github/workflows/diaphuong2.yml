@@ -1,4 +1,4 @@
-name: Stream Local 2
+Gname: Stream Local 2
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
           ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/epzsd1/hue_hls.smil/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/hue &
           ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxhd2/hanoitv1_vhls.smil/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/hanoi1 &
           ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxhd1/hntv2_vhls.smil/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/hanoi2 &
-          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxsd1/haiphong_hls.smil/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/haiphong &
+          ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/live/media/haiphong/live-hls-avc/haiphong-avc1_4000000=10000-mp4a_131600=20000.m3u8" -c copy -f flv rtmp://42.1.99.192/live/haiphong &
           ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxsd1/haiphongplus_hls.smil/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/haiphong3 &
           ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxsd1/hatinh_hls.smil/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/hatinh &
           ffmpeg -re -analyzeduration 10000000 -probesize 10000000 -i "https://live.fptplay53.net/fnxsd1/hungyen_2000.stream/chunklist.m3u8" -c copy -f flv rtmp://42.1.99.192/live/hungyen &
