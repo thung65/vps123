@@ -1,12 +1,10 @@
-name: Windows VM Remote
-on: workflow_dispatch
-
+name: Windows CI
+on: [push]
 jobs:
-  build:
+  build-on-windows:
     runs-on: windows-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+      - uses: actions/checkout@v4
+      
+      - name: Display PowerShell version
+        run: $PSVersionTable
