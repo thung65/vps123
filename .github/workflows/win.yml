@@ -1,10 +1,16 @@
-name: Windows CI
+name: Windows 10 App Build
 on: [push]
 jobs:
-  build-on-windows:
+  build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Display PowerShell version
-        run: $PSVersionTable
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Specific Windows 10 SDK
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+        with:
+          version: '19041' # Exact Windows 10 SDK build number
+
+      - name: Build Application
+        run: msbuild my-project.sln /p:Configuration=Release
